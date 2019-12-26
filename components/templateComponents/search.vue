@@ -1,12 +1,12 @@
 <template>
   <section class="search_box">
-    <el-input v-model="input" placeholder="请输入内容" v-if="data.tempTypeId==1"></el-input>
-    <el-input v-model="input" placeholder="请输入内容" v-else-if="data.tempTypeId==2"></el-input>
+    <el-input v-model="input" placeholder="请输入内容" v-if="tempTypeId==1"></el-input>
+    <el-input v-model="input" placeholder="请输入内容" v-else-if="tempTypeId==2"></el-input>
     <el-input
       class="aaaa"
       placeholder="请选择日期"
       suffix-icon="el-icon-date"
-      v-else-if="data.tempTypeId==3"
+      v-else-if="tempTypeId==3"
       v-model="input"
     ></el-input>
     <el-input v-model="input" placeholder="请输入内容" v-else></el-input>
@@ -30,6 +30,37 @@ export default {
         }
       ),
       type: Object
+    },
+    tempComponents: {
+      default: () => (
+        [{
+          name: "警告按钮",
+          id: 1,
+          imgUrl: ""
+        },
+        {
+          name: "警告按钮",
+          id: 2,
+          imgUrl: ""
+        },
+        {
+          name: "警告按钮",
+          id: 3,
+          imgUrl: ""
+        }]
+      ),
+      type: Array
+    },
+  },
+  computed: {
+    tempTypeId() {
+      let isUseStyle = this.tempComponents.find(v => v.isUseStyle == true)
+      console.log(isUseStyle, "sssssssssssisUseStyleisUseStyle")
+      if (!!isUseStyle) {
+        return isUseStyle.id
+      } else {
+        return 1
+      }
     }
   },
   data() {

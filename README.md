@@ -1,6 +1,6 @@
-# fengchao
+# fengchao1
 
-> My striking Nuxt.js project
+> My impeccable Nuxt.js project
 
 ## Build Setup
 

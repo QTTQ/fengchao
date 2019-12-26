@@ -1,7 +1,7 @@
 <template>
   <div>
-    <!-- <component :is="item" v-for="(item,index) in items" :key="index"></component> -->
-    <component :is="component" :data="dataParams" v-if="component" />
+    <component :is="item" v-for="(item,index) in items" :data="dataParams" :key="index"></component>
+    <!-- <component :is="component" :data="dataParams" v-if="component" /> -->
     <button v-on:click="handleAppend">append</button>
   </div>
 </template>
@@ -16,38 +16,27 @@ export default {
       dataParams: {}
     }
   },
-  mounted() {
-    // this.init()
-    let aaa={"aaa":111}
-    console.log(Object.values(aaa)[0])
-  },
-  computed: {
-    loader() {
-      if (!this.type) {
-        return null
-      }
-      return () => import(`../components/templateComponents//${this.type}`)
-    },
+  async mounted() {
+    let aaa = ["search", "button", "customer"]
+    this.init(await this.handleAppend(aaa))
   },
   methods: {
-    init() {
-      if (this.loader != null) {
-        this.loader()
-          .then(() => {
-            this.component = () => this.loader()
-          })
-          .catch(() => {
-            this.component = () => import('../components/templateComponents/default')
-          })
-      }
-    },
-    handleAppend() { //动态插入需要显示的组件
-    //   var template = '<div><a href="https://codepen.io/bonashen/pen/WMbqrd?editors=1011">go edit =>{{id}}</a></div>';
-    //   id++;
-    //   this.items.push({ template: template, data: { id } });
-    this.type="search"
-    this.init()
+    async init(tempItems) {
+      tempItems.map(v => {
+        try {
+          this.items.push(() => v());
+        } catch (error) {
+          this.items.push(() => import('../components/templateComponents/default'));
+        }
+      })
 
+    },
+    async handleAppend(tempClasNames) { //动态插入需要显示的组件
+      let tempItems = []
+      tempClasNames.map(v => {
+        tempItems.push(() => import(`../components/templateComponents/${v}`))
+      })
+      return tempItems
     }
   }
 }

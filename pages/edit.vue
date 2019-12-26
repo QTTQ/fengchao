@@ -49,6 +49,7 @@
                 class="domc_com"
                 :is="Object.values(item)[0]"
                 :data="dataParams"
+                :tempComponents="!!tempComponents[index+1]?tempComponents[index+1][index1]:undefined"
                 :ref="Object.keys(item)[0]"
                 @click="componentFocusFn1"
               />
@@ -71,10 +72,20 @@
         </div>
         <div class="select_container_box">
           <div class="add_container" @click="createContainerFn">添加容器</div>
-          <div class="confirm_container">确认</div>
+          <div class="confirm_container" @click="confirmFn">确认</div>
         </div>
       </div>
-      <div class="params_container"></div>
+      <div class="params_container">
+        <div
+          v-if="!!tempComponents&&!!tempComponents[tempId]&&!!tempComponents[tempId][selectContainerTempId]"
+        >
+          <div
+            v-for="(item,index) in tempComponents[tempId][selectContainerTempId]"
+            :key="index"
+            @click="selectTempStyleFn(tempId,selectContainerTempId,index)"
+          >模板名：{{item.name}}</div>
+        </div>
+      </div>
     </div>
 
     <!-- <div class="container">
@@ -94,7 +105,7 @@
 </template>
 
 <script>
-import { async } from 'q'
+import axios from "axios"
 export default {
   name: "edit",
   data() {
@@ -115,7 +126,9 @@ export default {
       tempComponentObj: {},
       tempContainerHObj: {},
       tempParams: {},
+      tempComponents: {},//模板容器
       tempId: null,
+      selectContainerTempId: 0,
     }
   },
   computed: {
@@ -125,6 +138,7 @@ export default {
       }
       return () => import(`../components/templateComponents/${this.tempComponent}`)
     },
+
   },
   methods: {
     move(e, allClass, cla) {
@@ -136,6 +150,7 @@ export default {
       document.onmousemove = (e) => {
         let left = e.clientX - disX;
         let top = e.clientY - disY;
+        oDiv.$clientY = e.clientY
         switch (oDiv.style.gridArea) {
           case "head1 / head1 / head1 / head1": this.rangeOfHead1(left, top, oDiv); break;
           case "head2 / head2 / head2 / head2": this.rangeOfHead2(left, top, oDiv); break;
@@ -172,24 +187,24 @@ export default {
         // }
         document.onmousemove = null;
         document.onmousedown = null;
+        document.onmouseup = null;
         oDiv.className = "block animated wobble";
-        this.$nextTick(() => {
-          if (!!cla) {
-            if (this.hadRepeateFn(cla.split("_")[0])) {
+        if (!!cla) {
+          if (this.hadRepeateFn(cla.split("_")[0])) {
+            setTimeout(() => {
               this.createTempFn(cla.split("_")[0])
-            } else {
-              if (this.isDraging && this.domContainerId != 0) {
-                alert("此容器已经存在该组件")
-              }
+            },100)
+          } else {
+            if (this.isDraging && this.domContainerId != 0) {
+              alert("此容器已经存在该组件")
             }
           }
+        }
+        setTimeout(() => {
           this.cleanDom(oDiv, cla)
           oDiv.className = "block animated";
-        })
-
-        setTimeout(() => {
           this.isDraging = false
-        }, 1000);
+        }, 300);
       };
     },
     cleanSelectContainerNumFn() {
@@ -206,7 +221,6 @@ export default {
       if (this.tempComponentObj[this.tempId] == undefined) {
         this.tempComponentObj[this.tempId] = []
       }
-
       if (this.tempComponentObj[this.tempId].includes(tempName)) return false;
       this.tempComponentObj[this.tempId].push(tempName)
       return true;
@@ -218,49 +232,54 @@ export default {
       //   this.domContainerId = index + 1;
       // }
     },
-    createTempFn(tempName) {
+    async createTempFn(tempName) {
       this.tempComponent = tempName;
       if (this.loader == null || !this.isDraging) return;
-      this.loader()
-        .then(() => {
-          if (!this.tempItemsObj[this.domContainerId]) {
-            this.tempItemsObj[this.domContainerId] = []
+      // this.loader()
+      //   .then(() => {
+      if (!this.tempItemsObj[this.domContainerId]) {
+        this.tempItemsObj[this.domContainerId] = []
+      }
+      if (!this.isDraging) return;
+      let tempNameObj = {}
+      tempNameObj[tempName] = async () => await this.loader()
+      if (this.tempFoucsContainerId != null) {
+        this.tempId = this.tempFoucsContainerId
+      } else {
+        this.tempId = this.domContainerId
+      }
+      this.tempFoucsContainerId = null
+      this.tempItemsObj[this.tempId].push(tempNameObj)
+      this.tempItemsObj = { ...this.tempItemsObj }
+      let tempH = 0
+      let tempParams = {}
+      let tempComponents = {}
+      setTimeout(() => {
+        console.log(this.tempItemsObj[this.domContainerId], "哈哈哈哈哈哈哈哈哈哈")
+        if (!this.tempItemsObj[this.domContainerId]) return;
+        this.tempItemsObj[this.tempId].map((v, i) => {
+          if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
+            this.selectContainerTempId = i
+            tempParams[i] = this.$refs[Object.keys(v)][0].tempParams
+            console.log(this.$refs[Object.keys(v)][0].tempComponents, "LLLLLLLLLLLLLLLL")
+            tempComponents[i] = this.$refs[Object.keys(v)][0].tempComponents
+            if (this.$refs[Object.keys(v)][0].$el.clientHeight > tempH) {
+              tempH = this.$refs[Object.keys(v)][0].$el.clientHeight
+            }
           }
-          if (!this.isDraging) return;
-          let tempNameObj = {}
-          tempNameObj[tempName] = () => this.loader()
-          console.log(this.tempFoucsContainerId, "sssssssssssss")
-          if (this.tempFoucsContainerId != null) {
-            this.tempId = this.tempFoucsContainerId
-          } else {
-            this.tempId = this.domContainerId
-          }
-          this.tempFoucsContainerId = null
-          this.tempItemsObj[this.tempId].push(tempNameObj)
-          this.tempItemsObj = { ...this.tempItemsObj }
-          let tempH = 0
-          let tempParams = {}
-
-          setTimeout(() => {
-            if (!this.tempItemsObj[this.domContainerId]) return;
-            this.tempItemsObj[this.tempId].map((v, i) => {
-              if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
-                tempParams[i] = this.$refs[Object.keys(v)][0].tempParams
-                if (this.$refs[Object.keys(v)][0].$el.clientHeight > tempH) {
-                  tempH = this.$refs[Object.keys(v)][0].$el.clientHeight
-                }
-              }
-            })
-            this.tempParams[this.tempId] = tempParams
-            this.tempParams = { ...this.tempParams }
-            this.tempContainerHObj[this.tempId] = tempH
-            this.tempContainerHObj = { ...this.tempContainerHObj }
-          }, 500)
         })
-        .catch((e) => {
-          console.log(e, "errrrrrrrrr")
-          this.component = () => import('../components/templateComponents/default.vue')
-        })
+        this.tempParams[this.tempId] = tempParams
+        this.tempParams = { ...this.tempParams }
+        this.tempComponents[this.tempId] = tempComponents
+        this.tempComponents = { ...this.tempComponents }
+        this.tempContainerHObj[this.tempId] = tempH
+        this.tempContainerHObj = { ...this.tempContainerHObj }
+      }, 400)
+      // })
+      // .catch((e) => {
+      //   console.log(e, "errrrrrrrrr")
+      //   this.component = () => import('../components/templateComponents/default.vue')
+      // })
     },
     componentFocusFn(index, index1) {
       console.log(index, index1, "ssssssssssss-----点击组件")
@@ -276,14 +295,10 @@ export default {
       let aaaa = new Date()
       let sourceNode = document.querySelector(`.${cla}`); // 获得被克隆的节点对象 
       let clonedNode = sourceNode.cloneNode(true); // 克隆节点 
-      // clonedNode.setAttribute("class", `${allCla} time${aaaa.getFullYear()}`); // 修改一下id 值，避免id 重复 
       clonedNode.childNodes[0].setAttribute("class", `${allCla}`); // 修改一下id 值，避免id 重复 
-      // sourceNode.parentNode.appendChild(clonedNode); // 在父节点插入克隆的节点 
-      // sourceNode.parentNode.removeChild(clonedNode); // 在父节点插入克隆的节点 
       sourceNode.appendChild(clonedNode); // 在父节点插入克隆的节点 
     },
     createContainerFn() {
-      // this.selectContainerNum = null
       this.domContainerId += 1
       if (!this.tempItemsObj[this.domContainerId]) {
         this.tempItemsObj[this.domContainerId] = []
@@ -313,17 +328,46 @@ export default {
       let tempItemsArr = Object.keys(this.tempItemsObj)
       if (oDiv.clientWidth + x > tempX && tempItemsArr.length > 0) {
         let tempTop = 0
+        let yy = oDiv.$clientY
         tempItemsArr.map((v, i) => {
-          tempTop = tempTop + domContainerArr[i].offsetTop
-          if (domContainerArr[i].clientHeight > y - tempTop && y - tempTop > 0) {
+          if (domContainerArr[0].clientHeight - yy > 0) {
+            this.tempFoucsContainerId = 1
+          } else if (yy - tempTop > 0 && (tempTop + domContainerArr[i].clientHeight) - yy > 0) {
             this.tempFoucsContainerId = v
-            console.log(v, 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
           }
+          tempTop = tempTop + domContainerArr[i].clientHeight
         })
       }
+    },
+    //选择模板样式
+    selectTempStyleFn(containerId, tempIndex, index) {
+      let tempIndexArr = [...this.tempComponents[containerId][tempIndex]]
+      console.log(containerId, tempIndex, index, tempIndexArr, "11111containerIdooooooooooooooooothis.tempComponentsoo")
+      tempIndexArr.map((v, i) => {
+        v.isUseStyle = false
+        if (i == index) {
+          v.isUseStyle = true
+        }
+      })
+      this.tempComponents[containerId][tempIndex] = tempIndexArr
+      console.log(this.tempComponents, "11111containerIdooooooooooooooooothis.tempComponentsoo")
+      // this.tempComponents[containerId][tempIndex].map((v, i) => {
+      //   v.isUseStyle = false
+      //   if (i == index) {
+      //     v.isUseStyle = true
+      //   }
+      // })
+      // let tempObj = { ...this.tempComponents }
+      // this.tempComponents = {}
+      // this.$nextTick(() => {
+      //   this.tempComponents = { ...tempObj }
+      // })
+    },
 
-
-
+    confirmFn() {
+      axios.get("/createHomeDataParams",{params:{aa:"11"}}).then(v=>{
+        console.log(v,'ssssssss')
+      })
     },
     rangeOfHead1(x, y, oDiv) {
       if (x >= 200) {
