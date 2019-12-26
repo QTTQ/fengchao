@@ -42,7 +42,7 @@
               :key="index1"
               v-show="Object.values(item)[0]"
               class="domc_com_box"
-              @click.stop="componentFocusFn(index,index1)"
+              @click.stop="selectTempStyleFn(tempId,index1,0)"
               :style="tempParams[index+1]?tempParams[index+1][index1]:{}"
             >
               <component
@@ -77,12 +77,12 @@
       </div>
       <div class="params_container">
         <div
-          v-if="!!tempComponents&&!!tempComponents[tempId]&&!!tempComponents[tempId][selectContainerTempId]"
+          v-if="!!tempComponents&&!!tempComponents[tempId]&&!!tempComponents[tempId][selectContainerTempIndex]"
         >
           <div
-            v-for="(item,index) in tempComponents[tempId][selectContainerTempId]"
+            v-for="(item,index) in tempComponents[tempId][selectContainerTempIndex]"
             :key="index"
-            @click="selectTempStyleFn(tempId,selectContainerTempId,index)"
+            @click="selectTempStyleFn(tempId,selectContainerTempIndex,index)"
           >模板名：{{item.name}}</div>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default {
       tempParams: {},
       tempComponents: {},//模板容器
       tempId: null,
-      selectContainerTempId: 0,
+      selectContainerTempIndex: 0,
     }
   },
   computed: {
@@ -256,7 +256,7 @@ export default {
         if (!this.tempItemsObj[this.domContainerId]) return;
         this.tempItemsObj[this.tempId].map((v, i) => {
           if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
-            this.selectContainerTempId = i
+            this.selectContainerTempIndex = i
             tempParams[i] = this.$refs[Object.keys(v)][0].tempParams
             tempComponents[i] = this.$refs[Object.keys(v)][0].tempComponents
             if (this.$refs[Object.keys(v)][0].$el.clientHeight > tempH) {
@@ -341,6 +341,7 @@ export default {
     },
     //选择模板样式
     selectTempStyleFn(containerId, tempIndex, index) {
+      console.log(containerId, tempIndex, index,"oooooooooooooooooooo")
       let tempIndexArr = [...this.tempComponents[containerId][tempIndex]]
       tempIndexArr.map((v, i) => {
         v.isUseStyle = false
