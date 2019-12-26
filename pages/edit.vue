@@ -138,7 +138,6 @@ export default {
       }
       return () => import(`../components/templateComponents/${this.tempComponent}`)
     },
-
   },
   methods: {
     move(e, allClass, cla) {
