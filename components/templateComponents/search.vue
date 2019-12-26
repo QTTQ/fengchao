@@ -55,7 +55,6 @@ export default {
   computed: {
     tempTypeId() {
       let isUseStyle = this.tempComponents.find(v => v.isUseStyle == true)
-      console.log(isUseStyle, "sssssssssssisUseStyleisUseStyle")
       if (!!isUseStyle) {
         return isUseStyle.id
       } else {

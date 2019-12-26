@@ -123,7 +123,7 @@ export default {
       tempItemsObj: {},
       dataParams: { tempTypeId: 3 },
       tempComponent: null,
-      tempComponentObj: {},
+      tempComponentObj: {},// {"1":["search","customer"]} 结构
       tempContainerHObj: {},
       tempParams: {},
       tempComponents: {},//模板容器
@@ -165,7 +165,6 @@ export default {
         this.rangeOfHead0(left, top, oDiv)
       };
       document.onmouseup = (e) => {
-        this.selectTempNum = this.selectTempNum + 1
         // if (e.clientY - gDiv.offsetTop < 100 && e.clientX - gDiv.offsetLeft < 100) {
         //   this.changeBlock("head1", oDiv);
         // } else if (e.clientY - gDiv.offsetTop > 100 && e.clientX - gDiv.offsetLeft < 100 && e.clientY - gDiv.offsetTop < 200) {
@@ -193,7 +192,7 @@ export default {
           if (this.hadRepeateFn(cla.split("_")[0])) {
             setTimeout(() => {
               this.createTempFn(cla.split("_")[0])
-            },100)
+            }, 100)
           } else {
             if (this.isDraging && this.domContainerId != 0) {
               alert("此容器已经存在该组件")
@@ -255,13 +254,11 @@ export default {
       let tempParams = {}
       let tempComponents = {}
       setTimeout(() => {
-        console.log(this.tempItemsObj[this.domContainerId], "哈哈哈哈哈哈哈哈哈哈")
         if (!this.tempItemsObj[this.domContainerId]) return;
         this.tempItemsObj[this.tempId].map((v, i) => {
           if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
             this.selectContainerTempId = i
             tempParams[i] = this.$refs[Object.keys(v)][0].tempParams
-            console.log(this.$refs[Object.keys(v)][0].tempComponents, "LLLLLLLLLLLLLLLL")
             tempComponents[i] = this.$refs[Object.keys(v)][0].tempComponents
             if (this.$refs[Object.keys(v)][0].$el.clientHeight > tempH) {
               tempH = this.$refs[Object.keys(v)][0].$el.clientHeight
@@ -289,7 +286,11 @@ export default {
     },
     cleanDom(oDiv, cla) {
       if (oDiv.parentNode == null) return;
+      this.selectTempNum = this.selectTempNum - 1
       oDiv.parentNode.removeChild(oDiv); // 在父节点插入克隆的节点 
+      this.$nextTick(() => {
+        this.selectTempNum = this.selectTempNum + 1
+      })
     },
     copyDiv(allCla, cla, oDiv) {
       let aaaa = new Date()
@@ -342,7 +343,6 @@ export default {
     //选择模板样式
     selectTempStyleFn(containerId, tempIndex, index) {
       let tempIndexArr = [...this.tempComponents[containerId][tempIndex]]
-      console.log(containerId, tempIndex, index, tempIndexArr, "11111containerIdooooooooooooooooothis.tempComponentsoo")
       tempIndexArr.map((v, i) => {
         v.isUseStyle = false
         if (i == index) {
@@ -350,7 +350,6 @@ export default {
         }
       })
       this.tempComponents[containerId][tempIndex] = tempIndexArr
-      console.log(this.tempComponents, "11111containerIdooooooooooooooooothis.tempComponentsoo")
       // this.tempComponents[containerId][tempIndex].map((v, i) => {
       //   v.isUseStyle = false
       //   if (i == index) {
@@ -363,11 +362,19 @@ export default {
       //   this.tempComponents = { ...tempObj }
       // })
     },
-
     confirmFn() {
-      axios.get("/createHomeDataParams",{params:{aa:"11"}}).then(v=>{
-        console.log(v,'ssssssss')
-      })
+      axios({
+        method: 'post',
+        url: '/createHomeDataParams',
+        data: {
+          "17301": {
+            "levelStruct": this.tempComponentObj,
+            "styleParamsDara": this.tempParams
+          }
+        }
+      }).then(v => {
+        console.log(v, "sssssssssssssss")
+      });
     },
     rangeOfHead1(x, y, oDiv) {
       if (x >= 200) {
@@ -545,7 +552,7 @@ export default {
   height: 300px;
   grid-template-columns: 100px 100px 100px;
   grid-template-rows: 100px 100px 100px;
-  grid-template-areas: "head1 head2 head3" "main1 main2 main3" "footer1 footer2 footer3";
+  grid-template-areas: 'head1 head2 head3' 'main1 main2 main3' 'footer1 footer2 footer3';
   /*grid-template-areas: none;*/
   border: 1px solid #000;
   margin: 50px auto;

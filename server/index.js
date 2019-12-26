@@ -2,23 +2,14 @@ const Koa = require('koa')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
 const Router = require('./router.js')
-const jsonfile = require('jsonfile')
-const homeDataParams = 'homeDataParams.json'
+//引入中间件模块
+const middleware = require('./middleware')
 const app = new Koa()
 
 // Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
 config.dev = app.env !== 'production'
-//读取json
-const obj = { name: 'JP' }
-jsonfile.readFile(homeDataParams, (err, obj) => {
-  if (err) console.error(err)
-  console.dir(obj)
-})
-//写json
-jsonfile.writeFile(homeDataParams, obj, (err) => {
-  if (err) console.error(err)
-})
+
 async function start() {
   // Instantiate nuxt.js
   const nuxt = new Nuxt(config)
@@ -35,6 +26,8 @@ async function start() {
   } else {
     await nuxt.ready()
   }
+  //应用中间件模块
+  middleware(app)
   Router(app)
   app.use((ctx) => {
     ctx.status = 200
@@ -42,7 +35,7 @@ async function start() {
     ctx.req.ctx = ctx // This might be useful later on, e.g. in nuxtServerInit or with nuxt-stash
     nuxt.render(ctx.req, ctx.res)
   })
-console.log(host,port,"ssssssssss")
+  console.log(host, port, "ssssssssss")
   app.listen(port, host)
   consola.ready({
     message: `Server listening on http://${host}:${port}`,
