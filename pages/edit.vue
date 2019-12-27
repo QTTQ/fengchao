@@ -42,15 +42,16 @@
               :key="index1"
               v-show="Object.values(item)[0]"
               class="domc_com_box"
-              @click.stop="selectTempStyleFn(tempId,index1,0)"
+              @click.stop="selectTempStyleFn(tempContainerId,index1,0)"
             >
-              <!-- :style="tempParamsArr[index+1]?tempParamsArr[index+1][index1]:{}" -->
+              <!-- :style="tempParamsObj[index+1]?tempParamsObj[index+1][index1]:{}" -->
               <component
                 class="domc_com"
                 :is="Object.values(item)[0]"
                 :data="dataParams"
                 :tempComponents="!!tempComponents[index+1]?tempComponents[index+1][index1]:undefined"
                 :ref="Object.keys(item)[0]"
+                :tempParams="!!tempParamsObj[index+1]?tempParamsObj[index+1][index1]:undefined"
                 @click="componentFocusFn1"
               />
             </div>
@@ -67,13 +68,32 @@
       </div>
       <div class="params_container">
         <div
-          v-if="!!tempComponents&&!!tempComponents[tempId]&&!!tempComponents[tempId][selectContainerTempIndex]"
+          v-if="!!tempComponents&&!!tempComponents[tempContainerId]&&!!tempComponents[tempContainerId][selectTempIndex]"
         >
           <div
-            v-for="(item,index) in tempComponents[tempId][selectContainerTempIndex]"
+            v-for="(item,index) in tempComponents[tempContainerId][selectTempIndex]"
             :key="index"
-            @click="selectTempStyleFn(tempId,selectContainerTempIndex,index)"
+            @click="selectTempStyleFn(tempContainerId,selectTempIndex,index)"
           >模板名：{{item.name}}</div>
+        </div>
+        <div
+          v-if="!!outTempParamsObj&&!!outTempParamsObj[tempContainerId]&&!!outTempParamsObj[tempContainerId][selectTempIndex]"
+        >
+          <div
+            v-for="(item,index) in outTempParamsObj[tempContainerId][selectTempIndex]"
+            :key="index"
+          >
+            <!-- @click="changeTempParamsFn(tempContainerId,selectTempIndex,index)" -->
+            <div>模板名：{{item.name}}</div>
+            <div v-for="(item1,index1) in item.type" :key="index1">
+              <div>{{item1.name}}</div>
+              <input
+                v-model="item1.value"
+                @input="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
+              />
+              <!-- <input :value="item1.value" @change="changeTempParamsFn($event)" /> -->
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -115,10 +135,11 @@ export default {
       tempComponent: null,
       tempComponentObj: {},// {"1":["search","customer"]} 结构
       tempContainerHObj: {},
-      tempParamsArr: {},
+      tempParamsObj: {},
+      outTempParamsObj: {},
       tempComponents: {},//模板容器
-      tempId: null,
-      selectContainerTempIndex: 0,
+      tempContainerId: null,
+      selectTempIndex: 0,
     }
   },
   computed: {
@@ -202,15 +223,15 @@ export default {
     },
     hadRepeateFn(tempName) {
       if (this.tempFoucsContainerId != null) {
-        this.tempId = this.tempFoucsContainerId
+        this.tempContainerId = this.tempFoucsContainerId
       } else {
-        this.tempId = this.domContainerId
+        this.tempContainerId = this.domContainerId
       }
-      if (this.tempComponentObj[this.tempId] == undefined) {
-        this.tempComponentObj[this.tempId] = []
+      if (this.tempComponentObj[this.tempContainerId] == undefined) {
+        this.tempComponentObj[this.tempContainerId] = []
       }
-      if (this.tempComponentObj[this.tempId].includes(tempName)) return false;
-      this.tempComponentObj[this.tempId].push(tempName)
+      if (this.tempComponentObj[this.tempContainerId].includes(tempName)) return false;
+      this.tempComponentObj[this.tempContainerId].push(tempName)
       return true;
     },
     selectContainerFn(index) {
@@ -232,33 +253,41 @@ export default {
       let tempNameObj = {}
       tempNameObj[tempName] = async () => await this.loader()
       if (this.tempFoucsContainerId != null) {
-        this.tempId = this.tempFoucsContainerId
+        this.tempContainerId = this.tempFoucsContainerId
       } else {
-        this.tempId = this.domContainerId
+        this.tempContainerId = this.domContainerId
       }
       this.tempFoucsContainerId = null
-      this.tempItemsObj[this.tempId].push(tempNameObj)
+      this.tempItemsObj[this.tempContainerId].push(tempNameObj)
       this.tempItemsObj = { ...this.tempItemsObj }
       let tempH = 0
-      let tempParamsArr = {}
+      let tempParamsObj = {}
+      let outTempParamsObj = {}
+
       let tempComponents = {}
       setTimeout(() => {
         if (!this.tempItemsObj[this.domContainerId]) return;
-        this.tempItemsObj[this.tempId].map((v, i) => {
+        this.tempItemsObj[this.tempContainerId].map((v, i) => {
           if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
-            this.selectContainerTempIndex = i
-            tempParamsArr[i] = this.$refs[Object.keys(v)][0].tempParamsArr
-            tempComponents[i] = this.$refs[Object.keys(v)][0].tempComponents
+            this.selectTempIndex = i
+            tempParamsObj[i] = this.$refs[Object.keys(v)][0].tempParams  //传回参数
+            tempComponents[i] = this.$refs[Object.keys(v)][0].tempComponents //模板
+            outTempParamsObj[i] = this.$refs[Object.keys(v)][0].outTempParams //可调节参数
+
             if (this.$refs[Object.keys(v)][0].$el.clientHeight > tempH) {
               tempH = this.$refs[Object.keys(v)][0].$el.clientHeight
             }
           }
         })
-        this.tempParamsArr[this.tempId] = tempParamsArr
-        this.tempParamsArr = { ...this.tempParamsArr }
-        this.tempComponents[this.tempId] = tempComponents
+        this.tempParamsObj[this.tempContainerId] = tempParamsObj
+        this.tempParamsObj = { ...this.tempParamsObj }
+        this.tempComponents[this.tempContainerId] = tempComponents
         this.tempComponents = { ...this.tempComponents }
-        this.tempContainerHObj[this.tempId] = tempH
+
+        this.outTempParamsObj[this.tempContainerId] = outTempParamsObj
+        this.outTempParamsObj = { ...this.outTempParamsObj }
+
+        this.tempContainerHObj[this.tempContainerId] = tempH
         this.tempContainerHObj = { ...this.tempContainerHObj }
       }, 400)
       // })
@@ -269,6 +298,44 @@ export default {
     },
     componentFocusFn1() {
       console.log("ssssssssssss-----点击组件---透过父容器了！！！！！！！！！！！")
+    },
+    changeTempParamsFn(tempContainerId, selectTempIndex, layerDomName, index, param) {
+      if (this.tempParamsObj[tempContainerId][selectTempIndex] == undefined) {
+        this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = {}
+      }
+      let obj = this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName]
+      if (obj == undefined) {
+        obj = {}
+        obj.vlaueName = {}
+        obj.className = {}
+      }
+        console.log(param,"sssssssssssssssssssss")
+      if (param.layer == "className") {
+        let paramVal = ""
+        paramVal = param.value
+        if (param.needPx) {
+          paramVal = param.value + "px"
+        }
+        obj.className = { ...obj.className, [param.layerEle]: paramVal }
+      } else {
+        obj.vlaueName = { ...obj.vlaueName, [param.layerEle]: param.value }
+      }
+      // this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = { ...this.tempParamsObj[tempContainerId][selectTempIndex].layerDomName, ...obj }
+      // // let newParamsObj=this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName]
+      // let newParamsObj1 = { ...this.tempParamsObj[tempContainerId][selectTempIndex] }
+      // this.tempParamsObj[tempContainerId][selectTempIndex] = {}
+      // console.log(param.value, newParamsObj1, "kkkkkkkkkkkkkkkkkkkkkkkkkkk")
+      // this.$nextTick(() => {
+      //   this.tempParamsObj[tempContainerId][selectTempIndex] = newParamsObj1
+      // })
+
+
+      this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = { ...this.tempParamsObj[tempContainerId][selectTempIndex].layerDomName, ...obj }
+      let newParamsObj1 = { ...this.tempParamsObj[tempContainerId][selectTempIndex] }
+      this.tempParamsObj[tempContainerId][selectTempIndex] = {}
+      this.$nextTick(() => {
+        this.tempParamsObj[tempContainerId][selectTempIndex] = newParamsObj1
+      })
     },
     cleanDom(oDiv, cla) {
       if (oDiv.parentNode == null) return;
@@ -328,7 +395,7 @@ export default {
     },
     //选择模板样式
     selectTempStyleFn(containerId, tempIndex, index) {
-      this.selectContainerTempIndex=tempIndex
+      this.selectTempIndex = tempIndex
       let tempIndexArr = [...this.tempComponents[containerId][tempIndex]]
       tempIndexArr.map((v, i) => {
         v.isUseStyle = false
@@ -356,7 +423,7 @@ export default {
         data: {
           "17301": {
             "levelStruct": this.tempComponentObj,
-            "styleParamsDara": this.tempParamsArr
+            "styleParamsDara": this.tempParamsObj
           }
         }
       }).then(v => {

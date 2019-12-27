@@ -1,6 +1,17 @@
 <template>
   <section class="button_box">
-    <el-button v-if="tempTypeId==1">默认按钮</el-button>
+    <el-button class="aaaa" v-if="tempTypeId==1">
+      <input
+        class="input"
+        :style="!!tempParams&&!!tempParams.input?tempParams.input.className:{}"
+        :value="!!tempParams&&!!tempParams.input&&!!tempParams.input.vlaueName?tempParams.input.vlaueName.input:0"
+      />
+      <!-- <input
+        class="input"
+        :style="changeParamsComputed.input.className"
+        :value="changeParamsComputed.input.vlaueName.input"
+      />-->
+    </el-button>
     <el-button type="primary" v-else-if="tempTypeId==2">主要按钮</el-button>
     <el-button type="success" v-else-if="tempTypeId==3">成功按钮</el-button>
     <el-button type="info" v-else>信息按钮</el-button>
@@ -18,17 +29,49 @@ export default {
     tempParams: {
       default: () => (
         {
-          display: 'flex',
-          flexGrow: 1,
-          height: '40px',
-          marginTop: '0',
-          marginLeft: "0",
-          marginRight: "0",
-          marginBottom: "0",
-          color: "#ccc"
+          // display: 'flex',
+          // flexGrow: 1,
+          // height: '40px',
+          // marginTop: '0',
+          // marginLeft: "0",
+          // marginRight: "0",
+          // marginBottom: "0",
+          // color: "#ccc"
+
+          // input: {
+          //   "className": {},
+          //   "vlaueName": {}
+          // },
+          // input1: {
+          //   "className": {},
+          //   "vlaueName": {}
+          // }
         }
       ),
       type: Object
+    },
+    inTempParams: {
+      default: () => (
+        {
+          input: {
+            className: {
+              display: 'flex',
+              flexGrow: 1,
+              height: '40px',
+              marginTop: '0',
+              marginLeft: "0",
+              marginRight: "0",
+              marginBottom: "0",
+              color: "#ccc"
+            },
+            valueName: {
+              input: 0
+            }
+          },
+        }
+      ),
+      type: Object
+
     },
     outTempParams: {
       default: () => (
@@ -37,10 +80,29 @@ export default {
             name: "模板1",
             id: 1,
             imgUrl: "",
-            layersDomName: "",
-            type: [{
-
-            }]
+            layerDomName: "input",
+            type: [
+              {
+                name: "宽度",
+                layerEle: "width",
+                layer: "className",//作用在class上
+                value: "0",
+                needPx: true
+              },
+              {
+                name: "高度",
+                layerEle: "height",
+                layer: "className",//作用在class上
+                value: "0",
+                needPx: true
+              },
+              {
+                name: "input值",
+                layerEle: "input",
+                layer: "valueName",//作用在value上
+                value: "0"
+              },
+            ]
           },
           {},
           {},
@@ -71,6 +133,17 @@ export default {
       type: Array
     },
   },
+  // watch: {
+  //   tempParams: {
+  //     handler(val, oldVal) {
+  //       if (val.input != undefined) {
+  //         this.styleObj = {...val.input}
+  //       console.log(this.styleObj, val, oldVal, "ooowatchwatchwatchwatchwatchwatchoooo")
+  //       }
+  //     },
+  //     deep: true
+  //   }
+  // },
   computed: {
     tempTypeId() {
       let isUseStyle = this.tempComponents.find(v => v.isUseStyle == true)
@@ -79,18 +152,37 @@ export default {
       } else {
         return 1
       }
-    }
+    },
+    // changeParamsComputed() {
+    //   if (Object.keys(this.tempParams).length > 0) {
+    //     this.changeParams = { ...this.inTempParams, ...this.tempParams }
+    //   } else {
+    //     this.changeParams = { ...this.inTempParams }
+    //   }
+    //   console.log(this.changeParams, this.tempParams, "iiiiiiiiiiiiiii-----------this.changeParams")
+    //   return this.changeParams
+    // }
+  },
+  mounted() {
+    console.log(this.changeParams, this.inTempParams, "iiiiiiiiiiiiiii-----111111111------this.changeParams")
+  },
+  methods: {
   },
   data() {
     return {
+      styleObj: {},
+      changeParams: {}
     }
   }
 }
 </script>
-<style scoped>
+<style lang="less" scoped>
 .button_box {
   display: flex;
   flex-grow: 1;
   height: 40px;
+  .aaaa {
+    background: red;
+  }
 }
 </style>
