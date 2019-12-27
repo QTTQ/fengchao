@@ -1,11 +1,19 @@
 <template>
-  <section class="button_box">
+  <section class="button_box" :style="!!tempParams.button_box?tempParams.button_box.className:{}">
+    <div  
+    :style="!!tempParams.button_box?tempParams.button_box.className:{}"
+    >aaaaaaaaaaaa</div>
     <el-button class="aaaa" v-if="tempTypeId==1">
       <input
         class="input"
+        :style="!!tempParams.input?tempParams.input.className:{}"
+        :value="!!tempParams.input&&!!tempParams.input.vlaueName?tempParams.input.vlaueName.input:0"
+      />
+      <!-- <input
+        class="input"
         :style="!!tempParams&&!!tempParams.input?tempParams.input.className:{}"
         :value="!!tempParams&&!!tempParams.input&&!!tempParams.input.vlaueName?tempParams.input.vlaueName.input:0"
-      />
+      />-->
       <!-- <input
         class="input"
         :style="changeParamsComputed.input.className"
@@ -29,15 +37,6 @@ export default {
     tempParams: {
       default: () => (
         {
-          // display: 'flex',
-          // flexGrow: 1,
-          // height: '40px',
-          // marginTop: '0',
-          // marginLeft: "0",
-          // marginRight: "0",
-          // marginBottom: "0",
-          // color: "#ccc"
-
           // input: {
           //   "className": {},
           //   "vlaueName": {}
@@ -104,7 +103,20 @@ export default {
               },
             ]
           },
-          {},
+          {
+            name: "外边框",
+            id: 1,
+            imgUrl: "",
+            layerDomName: "button_box",
+            type: [
+              {
+                name: "背景颜色",
+                layerEle: "background",
+                layer: "className",//作用在class上
+                value: "#ccc",
+                needPx: false
+              },]
+          },
           {},
           {},
           {}
@@ -164,7 +176,9 @@ export default {
     // }
   },
   mounted() {
-    console.log(this.changeParams, this.inTempParams, "iiiiiiiiiiiiiii-----111111111------this.changeParams")
+    setInterval(()=>{
+    console.log(this.tempParams, "iiiiiiiiiiiiiii-----111111111------this.changeParams")
+    },2000)
   },
   methods: {
   },

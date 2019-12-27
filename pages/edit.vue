@@ -42,7 +42,7 @@
               :key="index1"
               v-show="Object.values(item)[0]"
               class="domc_com_box"
-              @click.stop="selectTempStyleFn(tempContainerId,index1,0)"
+              @click.stop="selectTempStyleFn(index+1,index1,0)"
             >
               <!-- :style="tempParamsObj[index+1]?tempParamsObj[index+1][index1]:{}" -->
               <component
@@ -309,7 +309,6 @@ export default {
         obj.vlaueName = {}
         obj.className = {}
       }
-        console.log(param,"sssssssssssssssssssss")
       if (param.layer == "className") {
         let paramVal = ""
         paramVal = param.value
@@ -328,8 +327,6 @@ export default {
       // this.$nextTick(() => {
       //   this.tempParamsObj[tempContainerId][selectTempIndex] = newParamsObj1
       // })
-
-
       this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = { ...this.tempParamsObj[tempContainerId][selectTempIndex].layerDomName, ...obj }
       let newParamsObj1 = { ...this.tempParamsObj[tempContainerId][selectTempIndex] }
       this.tempParamsObj[tempContainerId][selectTempIndex] = {}
@@ -396,6 +393,7 @@ export default {
     //选择模板样式
     selectTempStyleFn(containerId, tempIndex, index) {
       this.selectTempIndex = tempIndex
+      this.tempContainerId = containerId
       let tempIndexArr = [...this.tempComponents[containerId][tempIndex]]
       tempIndexArr.map((v, i) => {
         v.isUseStyle = false
