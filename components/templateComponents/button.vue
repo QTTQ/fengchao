@@ -30,20 +30,40 @@ export default {
       ),
       type: Object
     },
+    outTempParams: {
+      default: () => (
+        [
+          {
+            name: "模板1",
+            id: 1,
+            imgUrl: "",
+            layersDomName: "",
+            type: [{
+
+            }]
+          },
+          {},
+          {},
+          {},
+          {}
+        ]
+      ),
+      type: Array
+    },
     tempComponents: {
       default: () => (
         [{
-          name: "警告按钮",
+          name: "模板1",
           id: 1,
           imgUrl: ""
         },
         {
-          name: "警告按钮",
+          name: "模板2",
           id: 2,
           imgUrl: ""
         },
         {
-          name: "警告按钮",
+          name: "模板3",
           id: 3,
           imgUrl: ""
         }]

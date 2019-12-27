@@ -43,8 +43,8 @@
               v-show="Object.values(item)[0]"
               class="domc_com_box"
               @click.stop="selectTempStyleFn(tempId,index1,0)"
-              :style="tempParams[index+1]?tempParams[index+1][index1]:{}"
             >
+              <!-- :style="tempParamsArr[index+1]?tempParamsArr[index+1][index1]:{}" -->
               <component
                 class="domc_com"
                 :is="Object.values(item)[0]"
@@ -54,16 +54,6 @@
                 @click="componentFocusFn1"
               />
             </div>
-            <!-- <component
-              class="domc_com"
-              :is="Object.values(item)[0]"
-              :data="dataParams"
-              :ref="Object.keys(item)[0]"
-              v-for="(item,index) in tempItemsObj[index+1]"
-              :key="index"
-              v-show="Object.values(item)[0]"
-              @click.stop="componentFocusFn"
-            />-->
             <div
               class="domc_temp"
               v-if="!tempItemsObj[index+1]||tempItemsObj[index+1].length==0"
@@ -125,7 +115,7 @@ export default {
       tempComponent: null,
       tempComponentObj: {},// {"1":["search","customer"]} 结构
       tempContainerHObj: {},
-      tempParams: {},
+      tempParamsArr: {},
       tempComponents: {},//模板容器
       tempId: null,
       selectContainerTempIndex: 0,
@@ -250,22 +240,22 @@ export default {
       this.tempItemsObj[this.tempId].push(tempNameObj)
       this.tempItemsObj = { ...this.tempItemsObj }
       let tempH = 0
-      let tempParams = {}
+      let tempParamsArr = {}
       let tempComponents = {}
       setTimeout(() => {
         if (!this.tempItemsObj[this.domContainerId]) return;
         this.tempItemsObj[this.tempId].map((v, i) => {
           if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
             this.selectContainerTempIndex = i
-            tempParams[i] = this.$refs[Object.keys(v)][0].tempParams
+            tempParamsArr[i] = this.$refs[Object.keys(v)][0].tempParamsArr
             tempComponents[i] = this.$refs[Object.keys(v)][0].tempComponents
             if (this.$refs[Object.keys(v)][0].$el.clientHeight > tempH) {
               tempH = this.$refs[Object.keys(v)][0].$el.clientHeight
             }
           }
         })
-        this.tempParams[this.tempId] = tempParams
-        this.tempParams = { ...this.tempParams }
+        this.tempParamsArr[this.tempId] = tempParamsArr
+        this.tempParamsArr = { ...this.tempParamsArr }
         this.tempComponents[this.tempId] = tempComponents
         this.tempComponents = { ...this.tempComponents }
         this.tempContainerHObj[this.tempId] = tempH
@@ -276,9 +266,6 @@ export default {
       //   console.log(e, "errrrrrrrrr")
       //   this.component = () => import('../components/templateComponents/default.vue')
       // })
-    },
-    componentFocusFn(index, index1) {
-      console.log(index, index1, "ssssssssssss-----点击组件")
     },
     componentFocusFn1() {
       console.log("ssssssssssss-----点击组件---透过父容器了！！！！！！！！！！！")
@@ -341,7 +328,7 @@ export default {
     },
     //选择模板样式
     selectTempStyleFn(containerId, tempIndex, index) {
-      console.log(containerId, tempIndex, index,"oooooooooooooooooooo")
+      this.selectContainerTempIndex=tempIndex
       let tempIndexArr = [...this.tempComponents[containerId][tempIndex]]
       tempIndexArr.map((v, i) => {
         v.isUseStyle = false
@@ -369,7 +356,7 @@ export default {
         data: {
           "17301": {
             "levelStruct": this.tempComponentObj,
-            "styleParamsDara": this.tempParams
+            "styleParamsDara": this.tempParamsArr
           }
         }
       }).then(v => {
