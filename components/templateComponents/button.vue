@@ -1,8 +1,5 @@
 <template>
   <section class="button_box" :style="!!tempParams.button_box?tempParams.button_box.className:{}">
-    <div  
-    :style="!!tempParams.button_box?tempParams.button_box.className:{}"
-    >aaaaaaaaaaaa</div>
     <el-button class="aaaa" v-if="tempTypeId==1">
       <input
         class="input"
@@ -176,9 +173,6 @@ export default {
     // }
   },
   mounted() {
-    setInterval(()=>{
-    console.log(this.tempParams, "iiiiiiiiiiiiiii-----111111111------this.changeParams")
-    },2000)
   },
   methods: {
   },

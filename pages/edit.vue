@@ -1,5 +1,6 @@
 <template>
   <section>
+    <!-- @mouseout="isShowDeleteFn(null,null)" -->
     <div class="drag_box">
       <div class="select_temp_box">
         <div class="select_temp_box1">
@@ -43,6 +44,7 @@
               v-show="Object.values(item)[0]"
               class="domc_com_box"
               @click.stop="selectTempStyleFn(index+1,index1,0)"
+              @mouseenter="isShowDeleteFn(index+1,index1)"
             >
               <!-- :style="tempParamsObj[index+1]?tempParamsObj[index+1][index1]:{}" -->
               <component
@@ -54,6 +56,13 @@
                 :tempParams="!!tempParamsObj[index+1]?tempParamsObj[index+1][index1]:undefined"
                 @click="componentFocusFn1"
               />
+              <transition name="fade_delete">
+                <div
+                  class="domc_delete"
+                  @click="deleteTempFn(index+1,index1)"
+                  v-show="isShowDelete==(index+1+index1)"
+                >删除</div>
+              </transition>
             </div>
             <div
               class="domc_temp"
@@ -84,7 +93,7 @@
             :key="index"
           >
             <!-- @click="changeTempParamsFn(tempContainerId,selectTempIndex,index)" -->
-            <div>模板名：{{item.name}}</div>
+            <div>模板：{{item.name}}</div>
             <div v-for="(item1,index1) in item.type" :key="index1">
               <div>{{item1.name}}</div>
               <input
@@ -140,6 +149,8 @@ export default {
       tempComponents: {},//模板容器
       tempContainerId: null,
       selectTempIndex: 0,
+      isShowDelete: null,
+      timer: null
     }
   },
   computed: {
@@ -151,6 +162,54 @@ export default {
     },
   },
   methods: {
+    deleteTempFn(containerId, tempIndex) {
+      //tempItemsObj 组件函数
+      this.tempItemsObj[containerId].splice(tempIndex, 1)
+      //tempComponentObj 结构
+      this.tempComponentObj[containerId].splice(tempIndex, 1)
+      delete this.tempComponents[containerId][tempIndex]
+      //tempParamsObj 参数结构
+      delete this.tempParamsObj[containerId][tempIndex]
+      //outTempParamsObj 组件参数结构
+      delete this.outTempParamsObj[containerId][tempIndex]
+
+      if (this.tempItemsObj[containerId].length == 0) {
+        delete this.tempContainerHObj[this.domContainerId]
+        delete this.tempComponents[containerId]
+        delete this.tempItemsObj[containerId]
+        delete this.tempComponentObj[containerId]
+        delete this.tempParamsObj[containerId]
+        delete this.outTempParamsObj[containerId]
+        this.domContainerId = this.domContainerId - 1
+      }
+      console.log(this.tempComponents, "kkkkkkkkkkkkkkkkkkkkkkk")
+      this.tempItemsObj = { ...this.tempItemsObj }
+      this.tempParamsObj = { ...this.tempParamsObj }
+      this.tempComponents = { ...this.tempComponents }
+      // let tempComponentObj = { ...this.tempComponentObj }
+      // let outTempParamsObj = { ...this.outTempParamsObj }
+      // this.tempComponentObj = {}
+      // this.outTempParamsObj = {}
+      // this.$nextTick(() => {
+
+      this.outTempParamsObj = { ...this.outTempParamsObj }
+      this.tempComponentObj = { ...this.tempComponentObj }
+      // })
+    },
+    isShowDeleteFn(containerId, tempIndex) {
+      if (this.timer != null) {
+        clearTimeout(this.timer)
+        this.timer = null
+      }
+      this.timer = setTimeout(() => {
+        console.log(containerId, tempIndex, 'isShowDeleteFn--->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        if (containerId == null) {
+          this.isShowDelete = null
+          return
+        }
+        this.isShowDelete = containerId + tempIndex
+      }, 500)
+    },
     move(e, allClass, cla) {
       this.isDraging = true
       let oDiv = e.target;      //获取点击的目标元素
@@ -313,7 +372,7 @@ export default {
         let paramVal = ""
         paramVal = param.value
         if (param.needPx) {
-          paramVal = param.value + "px"
+          paramVal = param.value + "rem"
         }
         obj.className = { ...obj.className, [param.layerEle]: paramVal }
       } else {
@@ -392,6 +451,7 @@ export default {
     },
     //选择模板样式
     selectTempStyleFn(containerId, tempIndex, index) {
+      if (this.tempComponents[containerId] == undefined || this.tempComponents[containerId][tempIndex] == undefined) return;
       this.selectTempIndex = tempIndex
       this.tempContainerId = containerId
       let tempIndexArr = [...this.tempComponents[containerId][tempIndex]]
@@ -596,7 +656,14 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style lang="less" scoped>
+.fade_delete-enter-active,
+.fade_delete-leave-active {
+  transition: opacity 0.5s;
+}
+.fade_delete-enter, .fade_delete-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 .container {
   position: relative;
   display: grid;
@@ -704,23 +771,38 @@ export default {
 }
 
 .dom_container_box {
-}
-.dom_container {
-  display: flex;
-}
-.domc_com_box {
-  display: flex;
-  flex-direction: row;
-  background: red;
-  flex-grow: 1;
-  position: relative;
-}
-.domc_com {
-  /* display: flex; */
-  flex-direction: row;
-  /* position: absolute; */
-  background: green;
-  z-index: 1;
+  .dom_container {
+    display: flex;
+    & > .domc_com_box > * {
+      cursor: crosshair;
+    }
+    .domc_com_box {
+      display: flex;
+      flex-direction: row;
+      background: red;
+      flex-grow: 1;
+      position: relative;
+      .domc_com {
+        /* display: flex; */
+        flex-direction: row;
+        /* position: absolute; */
+        background: green;
+        z-index: 1;
+      }
+      .domc_delete {
+        position: absolute;
+        width: 50px;
+        height: 20px;
+        top: 0;
+        right: -20px;
+        background: blueviolet;
+        border: 1px solid red;
+        z-index: 11111111111111;
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
 }
 
 /*  */
