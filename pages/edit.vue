@@ -479,9 +479,11 @@ export default {
         method: 'post',
         url: '/createHomeDataParams',
         data: {
-          "17301": {
-            "levelStruct": this.tempComponentObj,
-            "styleParamsDara": this.tempParamsObj
+          17301: {
+            home: {
+              "levelStruct": this.tempComponentObj,
+              "styleParamsDara": this.tempParamsObj
+            }
           }
         }
       }).then(v => {

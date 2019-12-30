@@ -1,12 +1,20 @@
 const util = require('./util')
-const homeDataParams = 'homeDataParams.json'
-
+const baseFilePath = "./comParams/"
+const path = require('path');
 module.exports = {
     createHomeDataParams: async (ctx, next) => {
         let postBody = ctx.request.body
-        let OldJsonData = await util.readJsonFnSync(homeDataParams)
+        let jsonParamsName = Object.keys(postBody)[0]
+        // let aaa = await fs.statSync(path.join(__dirname, '*.txt'));
+        let hadFile = await util.hadFileFn(path.join(__dirname, baseFilePath), jsonParamsName + ".json")
+        let jsonParamsFileName = baseFilePath + jsonParamsName + ".json"
+        if (hadFile == false) {
+            await util.createFileFn(baseFilePath, jsonParamsName)
+            await util.writeJsonFnSync(jsonParamsFileName, {})
+        }
+        let OldJsonData = await util.readJsonFnSync(jsonParamsFileName)
         if (postBody != undefined) {
-            await util.writeJsonFnSync(homeDataParams, { ...OldJsonData, ...postBody })
+            await util.writeJsonFnSync(jsonParamsFileName, { ...OldJsonData, ...postBody })
             ctx.body = {
                 msg: '保存成功',
                 code: 0
