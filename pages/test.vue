@@ -1,8 +1,11 @@
 <template>
   <div>
-    <component :is="item" v-for="(item,index) in items" :data="dataParams" :key="index"></component>
-    <!-- <component :is="component" :data="dataParams" v-if="component" /> -->
-    <button v-on:click="handleAppend">append</button>
+    <component :is="item" v-for="(item,index) in paramsCompArr" :data="dataParams" :key="index"></component>
+    <!-- <button v-on:click="handleAppendFn">append</button> -->
+    <div>
+      {{aaaa(1)}}
+      11111
+    </div>
   </div>
 </template>
 <script>
@@ -10,34 +13,33 @@ export default {
   name: 'test',
   data() {
     return {
-      items: [],
+      paramsCompArr: [],
       type: null,
-      component: null,
       dataParams: {}
     }
   },
   async mounted() {
+    console.log(this, "......................")
     let aaa = ["search", "button", "customer"]
-    this.init(await this.handleAppend(aaa))
+    this.initComponentsFn(await this.handleAppendFn(aaa))
   },
   methods: {
-    async init(tempItems) {
-      tempItems.map(v => {
-        try {
-          this.items.push(() => v());
-        } catch (error) {
-          this.items.push(() => import('../components/templateComponents/default'));
-        }
-      })
-
-    },
-    async handleAppend(tempClasNames) { //动态插入需要显示的组件
-      let tempItems = []
-      tempClasNames.map(v => {
-        tempItems.push(() => import(`../components/templateComponents/${v}`))
-      })
-      return tempItems
-    }
+    // async initComponentsFn(tempItems) {
+    //   tempItems.map(v => {
+    //     try {
+    //       this.paramsCompArr.push(() => v());
+    //     } catch (error) {
+    //       this.paramsCompArr.push(() => import('../components/templateComponents/default'));
+    //     }
+    //   })
+    // },
+    // async handleAppendFn(tempClasNames) { //动态插入需要显示的组件
+    //   let tempItems = []
+    //   tempClasNames.map(v => {
+    //     tempItems.push(() => import(`../components/templateComponents/${v}`))
+    //   })
+    //   return tempItems
+    // }
   }
 }
 </script>

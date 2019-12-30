@@ -76,6 +76,7 @@
         </div>
       </div>
       <div class="params_container">
+        <component :is="item" v-for="(item,index) in paramsCompArr" :data="dataParams" :key="index"></component>
         <div
           v-if="!!tempComponents&&!!tempComponents[tempContainerId]&&!!tempComponents[tempContainerId][selectTempIndex]"
         >
@@ -150,7 +151,8 @@ export default {
       tempContainerId: null,
       selectTempIndex: 0,
       isShowDelete: null,
-      timer: null
+      timer: null,
+      paramsCompArr: []
     }
   },
   computed: {
@@ -186,12 +188,6 @@ export default {
       this.tempItemsObj = { ...this.tempItemsObj }
       this.tempParamsObj = { ...this.tempParamsObj }
       this.tempComponents = { ...this.tempComponents }
-      // let tempComponentObj = { ...this.tempComponentObj }
-      // let outTempParamsObj = { ...this.outTempParamsObj }
-      // this.tempComponentObj = {}
-      // this.outTempParamsObj = {}
-      // this.$nextTick(() => {
-
       this.outTempParamsObj = { ...this.outTempParamsObj }
       this.tempComponentObj = { ...this.tempComponentObj }
       // })
@@ -324,7 +320,7 @@ export default {
       let outTempParamsObj = {}
 
       let tempComponents = {}
-      setTimeout(() => {
+      setTimeout(async () => {
         if (!this.tempItemsObj[this.domContainerId]) return;
         this.tempItemsObj[this.tempContainerId].map((v, i) => {
           if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
@@ -345,9 +341,11 @@ export default {
 
         this.outTempParamsObj[this.tempContainerId] = outTempParamsObj
         this.outTempParamsObj = { ...this.outTempParamsObj }
-
         this.tempContainerHObj[this.tempContainerId] = tempH
         this.tempContainerHObj = { ...this.tempContainerHObj }
+        console.log(outTempParamsObj[this.selectTempIndex], "sssssssssddddsadasdadadsas")
+        this.initComponentsFn(await this.handleAppendFn(outTempParamsObj[this.selectTempIndex]), "paramsComponents")
+        console.log(this.paramsCompArr, "ssss111111111111111sssssssss")
       }, 400)
       // })
       // .catch((e) => {
@@ -462,6 +460,7 @@ export default {
         }
       })
       this.tempComponents[containerId][tempIndex] = tempIndexArr
+      console.log(this.paramsCompArr, "sssssssssssss")
       // this.tempComponents[containerId][tempIndex].map((v, i) => {
       //   v.isUseStyle = false
       //   if (i == index) {

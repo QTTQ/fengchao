@@ -6,6 +6,7 @@
         class="item"
         :key="item.key"
         v-for="(item,index) in items"
+        :data-index="index"
         :style="{background:item.color,width:'80px',height:'80px'}"
         draggable="true"
         @dragstart="handleDragStart($event, item)"
