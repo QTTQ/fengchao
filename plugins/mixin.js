@@ -9,7 +9,7 @@ Vue.mixin({
     }
   },
   methods: {
-    async initComponentsFn(tempItems, compFile = "templateComponents") {
+    async initComponentsFn(tempItems) {
       tempItems.map(v => {
         try {
           console.log(v(), "......................")
@@ -19,7 +19,7 @@ Vue.mixin({
         }
       })
     },
-    async handleAppendFn(tempClasNames) { //动态插入需要显示的组件
+    async handleAppendFn(tempClasNames, compFile = "templateComponents") { //动态插入需要显示的组件
       let tempItems = []
       tempClasNames.map(v => {
         // try {

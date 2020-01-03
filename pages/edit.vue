@@ -76,16 +76,23 @@
         </div>
       </div>
       <div class="params_container">
-        <component :is="item" v-for="(item,index) in paramsCompArr" :data="dataParams" :key="index"></component>
+        <!-- <component :is="item" v-for="(item,index) in paramsCompArr" :data="dataParams"
+                @changeTempParamsFn_="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
+        :key="index"></component>-->
+        <!-- <inputTemp
+          v-for="(item,index) in paramsCompArr"
+          :key="index"
+          @changeTempParamsFn_="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
+        ></inputTemp> -->
         <div
           v-if="!!tempComponents&&!!tempComponents[tempContainerId]&&!!tempComponents[tempContainerId][selectTempIndex]"
         >
           <div
             v-for="(item,index) in tempComponents[tempContainerId][selectTempIndex]"
             :key="index"
-            @click="selectTempStyleFn(tempContainerId,selectTempIndex,index)"
           >模板名：{{item.name}}</div>
         </div>
+            <!-- @click="selectTempStyleFn(tempContainerId,selectTempIndex,index)" -->
         <div
           v-if="!!outTempParamsObj&&!!outTempParamsObj[tempContainerId]&&!!outTempParamsObj[tempContainerId][selectTempIndex]"
         >
@@ -93,7 +100,6 @@
             v-for="(item,index) in outTempParamsObj[tempContainerId][selectTempIndex]"
             :key="index"
           >
-            <!-- @click="changeTempParamsFn(tempContainerId,selectTempIndex,index)" -->
             <div>模板：{{item.name}}</div>
             <div v-for="(item1,index1) in item.type" :key="index1">
               <div>{{item1.name}}</div>
@@ -126,8 +132,12 @@
 
 <script>
 import axios from "axios"
+import inputTemp from "../components/paramsComponents/input"
 export default {
   name: "edit",
+  components: {
+    inputTemp
+  },
   data() {
     return {
       positionX: 0,
@@ -344,7 +354,7 @@ export default {
         this.tempContainerHObj[this.tempContainerId] = tempH
         this.tempContainerHObj = { ...this.tempContainerHObj }
         console.log(outTempParamsObj[this.selectTempIndex], "sssssssssddddsadasdadadsas")
-        this.initComponentsFn(await this.handleAppendFn(outTempParamsObj[this.selectTempIndex]), "paramsComponents")
+        this.initComponentsFn(await this.handleAppendFn(outTempParamsObj[this.selectTempIndex], "paramsComponents"))
         console.log(this.paramsCompArr, "ssss111111111111111sssssssss")
       }, 400)
       // })
@@ -357,6 +367,8 @@ export default {
       console.log("ssssssssssss-----点击组件---透过父容器了！！！！！！！！！！！")
     },
     changeTempParamsFn(tempContainerId, selectTempIndex, layerDomName, index, param) {
+      console.log(tempContainerId, selectTempIndex, layerDomName, index, param, "sssssssssssssssssssssssssssss")
+      // return;
       if (this.tempParamsObj[tempContainerId][selectTempIndex] == undefined) {
         this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = {}
       }
