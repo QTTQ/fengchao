@@ -12,7 +12,6 @@ Vue.mixin({
     async initComponentsFn(tempItems) {
       tempItems.map(v => {
         try {
-          console.log(v(), "......................")
           this.paramsCompArr.push(() => v());
         } catch (error) {
           this.paramsCompArr.push(() => import('@/components/templateComponents/default'));

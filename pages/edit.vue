@@ -1,6 +1,5 @@
 <template>
   <section>
-    <!-- @mouseout="isShowDeleteFn(null,null)" -->
     <div class="drag_box">
       <div class="select_temp_box">
         <div class="select_temp_box1">
@@ -29,11 +28,10 @@
           >客服</div>
         </div>
       </div>
-      <div class="show_container" @mouseout="cleanSelectContainerNumFn">
+      <div class="show_container">
         <div class="dom_container_box">
           <div
             class="dom_container"
-            @mousemove="selectContainerFn(index)"
             v-for="(item0,index) in domContainerId"
             :key="index"
             :style="{height:tempContainerHObj[index+1]+'px'}"
@@ -67,23 +65,19 @@
             <div
               class="domc_temp"
               v-if="!tempItemsObj[index+1]||tempItemsObj[index+1].length==0"
-            >请放置组件</div>
+            >组件放置区域</div>
           </div>
         </div>
-        <div class="select_container_box">
+        <!-- <div class="select_container_box">
           <div class="add_container" @click="createContainerFn">添加容器</div>
           <div class="confirm_container" @click="confirmFn">确认</div>
-        </div>
+        </div>-->
       </div>
       <div class="params_container">
         <!-- <component :is="item" v-for="(item,index) in paramsCompArr" :data="dataParams"
                 @changeTempParamsFn_="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
         :key="index"></component>-->
-        <!-- <inputTemp
-          v-for="(item,index) in paramsCompArr"
-          :key="index"
-          @changeTempParamsFn_="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
-        ></inputTemp> -->
+        <!-- 模板选择 -->
         <div
           v-if="!!tempComponents&&!!tempComponents[tempContainerId]&&!!tempComponents[tempContainerId][selectTempIndex]"
         >
@@ -92,11 +86,22 @@
             :key="index"
           >模板名：{{item.name}}</div>
         </div>
-            <!-- @click="selectTempStyleFn(tempContainerId,selectTempIndex,index)" -->
+        <!-- 参数调整 -->
         <div
           v-if="!!outTempParamsObj&&!!outTempParamsObj[tempContainerId]&&!!outTempParamsObj[tempContainerId][selectTempIndex]"
         >
           <div
+            v-for="(item,index) in outTempParamsObj[tempContainerId][selectTempIndex]"
+            :key="index"
+          >
+            <inputTemp
+              v-for="(item1,index1) in item.type"
+              :key="index1"
+              @changeTempParamsFn_="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
+            ></inputTemp>
+          </div>
+
+          <!-- <div
             v-for="(item,index) in outTempParamsObj[tempContainerId][selectTempIndex]"
             :key="index"
           >
@@ -107,9 +112,8 @@
                 v-model="item1.value"
                 @input="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
               />
-              <!-- <input :value="item1.value" @change="changeTempParamsFn($event)" /> -->
             </div>
-          </div>
+          </div>-->
         </div>
       </div>
     </div>
@@ -153,15 +157,17 @@ export default {
       tempItemsObj: {},
       dataParams: { tempTypeId: 3 },
       tempComponent: null,
-      tempComponentObj: {},// {"1":["search","customer"]} 结构
+      tempContainerObj: {},// {"1":["search","customer"]} 结构
       tempContainerHObj: {},
       tempParamsObj: {},
       outTempParamsObj: {},
-      tempComponents: {},//模板容器
+      tempComponents: {},//组件模板容器
       tempContainerId: null,
       selectTempIndex: 0,
       isShowDelete: null,
       timer: null,
+      timer1: null,
+      timer2: null,
       paramsCompArr: []
     }
   },
@@ -177,8 +183,8 @@ export default {
     deleteTempFn(containerId, tempIndex) {
       //tempItemsObj 组件函数
       this.tempItemsObj[containerId].splice(tempIndex, 1)
-      //tempComponentObj 结构
-      this.tempComponentObj[containerId].splice(tempIndex, 1)
+      //tempContainerObj 结构
+      this.tempContainerObj[containerId].splice(tempIndex, 1)
       delete this.tempComponents[containerId][tempIndex]
       //tempParamsObj 参数结构
       delete this.tempParamsObj[containerId][tempIndex]
@@ -189,7 +195,7 @@ export default {
         delete this.tempContainerHObj[this.domContainerId]
         delete this.tempComponents[containerId]
         delete this.tempItemsObj[containerId]
-        delete this.tempComponentObj[containerId]
+        delete this.tempContainerObj[containerId]
         delete this.tempParamsObj[containerId]
         delete this.outTempParamsObj[containerId]
         this.domContainerId = this.domContainerId - 1
@@ -199,7 +205,7 @@ export default {
       this.tempParamsObj = { ...this.tempParamsObj }
       this.tempComponents = { ...this.tempComponents }
       this.outTempParamsObj = { ...this.outTempParamsObj }
-      this.tempComponentObj = { ...this.tempComponentObj }
+      this.tempContainerObj = { ...this.tempContainerObj }
       // })
     },
     isShowDeleteFn(containerId, tempIndex) {
@@ -240,37 +246,24 @@ export default {
         this.rangeOfHead0(left, top, oDiv)
       };
       document.onmouseup = (e) => {
-        // if (e.clientY - gDiv.offsetTop < 100 && e.clientX - gDiv.offsetLeft < 100) {
-        //   this.changeBlock("head1", oDiv);
-        // } else if (e.clientY - gDiv.offsetTop > 100 && e.clientX - gDiv.offsetLeft < 100 && e.clientY - gDiv.offsetTop < 200) {
-        //   this.changeBlock("main1", oDiv);
-        // } else if (e.clientY - gDiv.offsetTop > 200 && e.clientX - gDiv.offsetLeft < 100) {
-        //   this.changeBlock("footer1", oDiv);
-        // } else if (e.clientY - gDiv.offsetTop < 100 && e.clientX - gDiv.offsetLeft > 100 && e.clientX - gDiv.offsetLeft < 200) {
-        //   this.changeBlock("head2", oDiv);
-        // } else if (e.clientY - gDiv.offsetTop < 100 && e.clientX - gDiv.offsetLeft > 200) {
-        //   this.changeBlock("head3", oDiv);
-        // } else if (e.clientY - gDiv.offsetTop > 100 && e.clientX - gDiv.offsetLeft > 200 && e.clientY - gDiv.offsetTop < 200) {
-        //   this.changeBlock("main3", oDiv);
-        // } else if (e.clientY - gDiv.offsetTop > 200 && e.clientX - gDiv.offsetLeft > 200) {
-        //   this.changeBlock("footer3", oDiv);
-        // } else if (e.clientY - gDiv.offsetTop > 200 && e.clientX - gDiv.offsetLeft > 100 && e.clientX - gDiv.offsetLeft < 200) {
-        //   this.changeBlock("footer2", oDiv);
-        // } else {
-        //   this.changeBlock("main2", oDiv);
-        // }
+        let left = e.clientX - disX;
         document.onmousemove = null;
         document.onmousedown = null;
         document.onmouseup = null;
         oDiv.className = "block animated wobble";
-        if (!!cla) {
-          if (this.hadRepeateFn(cla.split("_")[0])) {
-            setTimeout(() => {
-              this.createTempFn(cla.split("_")[0])
-            }, 100)
-          } else {
-            if (this.isDraging && this.domContainerId != 0) {
-              alert("此容器已经存在该组件")
+        let tempContainer = document.querySelector(".show_container")
+        let tempX = tempContainer.getBoundingClientRect().left
+        if (oDiv.clientWidth + left > tempX) {
+          if (!!cla) {
+            if (this.hadRepeateFn(cla.split("_")[0])) {
+              console.log("sdddddddddddddddddddddddd")
+              setTimeout(() => {
+                this.createTempFn(cla.split("_")[0])
+              }, 300)
+            } else {
+              if (this.isDraging && this.domContainerId != 0) {
+                alert("此容器已经存在该组件")
+              }
             }
           }
         }
@@ -278,13 +271,19 @@ export default {
           this.cleanDom(oDiv, cla)
           oDiv.className = "block animated";
           this.isDraging = false
-        }, 300);
+        }, 500);
       };
     },
-    cleanSelectContainerNumFn() {
-      if (this.isDraging) {
-        // this.selectContainerNum = null;
+    deleteTempContainerFn() {
+      console.log(this.tempItemsObj, "sssssssssdddddddddddddddddddddddd")
+      let temp1Dom = document.querySelector(".domc_temp")
+      if (!!temp1Dom) {
+        let tempObjLenth = Object.keys(this.tempItemsObj).length
+        if (this.tempItemsObj[tempObjLenth].length == 0) {
+          delete this.tempItemsObj[tempObjLenth]
+        }
       }
+      this.domContainerId = Object.keys(this.tempItemsObj).length
     },
     hadRepeateFn(tempName) {
       if (this.tempFoucsContainerId != null) {
@@ -292,19 +291,12 @@ export default {
       } else {
         this.tempContainerId = this.domContainerId
       }
-      if (this.tempComponentObj[this.tempContainerId] == undefined) {
-        this.tempComponentObj[this.tempContainerId] = []
+      if (this.tempContainerObj[this.tempContainerId] == undefined) {
+        this.tempContainerObj[this.tempContainerId] = []
       }
-      if (this.tempComponentObj[this.tempContainerId].includes(tempName)) return false;
-      this.tempComponentObj[this.tempContainerId].push(tempName)
+      if (this.tempContainerObj[this.tempContainerId].includes(tempName)) return false;
+      this.tempContainerObj[this.tempContainerId].push(tempName)
       return true;
-    },
-    selectContainerFn(index) {
-      // if (this.isDraging) {
-      //   console.log(this.isDraging, "111111111111111111111")
-      //   this.selectContainerNum = index;
-      //   this.domContainerId = index + 1;
-      // }
     },
     async createTempFn(tempName) {
       this.tempComponent = tempName;
@@ -323,14 +315,15 @@ export default {
         this.tempContainerId = this.domContainerId
       }
       this.tempFoucsContainerId = null
+      console.log(this.tempItemsObj, this.tempContainerId, ":ssssssssssssssss")
       this.tempItemsObj[this.tempContainerId].push(tempNameObj)
       this.tempItemsObj = { ...this.tempItemsObj }
       let tempH = 0
       let tempParamsObj = {}
       let outTempParamsObj = {}
-
       let tempComponents = {}
       setTimeout(async () => {
+        console.log(this.tempItemsObj[this.domContainerId], this.tempItemsObj, this.domContainerId, "mmmmmmmmmmmmmmmmmmmmmm")
         if (!this.tempItemsObj[this.domContainerId]) return;
         this.tempItemsObj[this.tempContainerId].map((v, i) => {
           if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
@@ -338,7 +331,6 @@ export default {
             tempParamsObj[i] = this.$refs[Object.keys(v)][0].tempParams  //传回参数
             tempComponents[i] = this.$refs[Object.keys(v)][0].tempComponents //模板
             outTempParamsObj[i] = this.$refs[Object.keys(v)][0].outTempParams //可调节参数
-
             if (this.$refs[Object.keys(v)][0].$el.clientHeight > tempH) {
               tempH = this.$refs[Object.keys(v)][0].$el.clientHeight
             }
@@ -353,9 +345,7 @@ export default {
         this.outTempParamsObj = { ...this.outTempParamsObj }
         this.tempContainerHObj[this.tempContainerId] = tempH
         this.tempContainerHObj = { ...this.tempContainerHObj }
-        console.log(outTempParamsObj[this.selectTempIndex], "sssssssssddddsadasdadadsas")
         this.initComponentsFn(await this.handleAppendFn(outTempParamsObj[this.selectTempIndex], "paramsComponents"))
-        console.log(this.paramsCompArr, "ssss111111111111111sssssssss")
       }, 400)
       // })
       // .catch((e) => {
@@ -368,7 +358,7 @@ export default {
     },
     changeTempParamsFn(tempContainerId, selectTempIndex, layerDomName, index, param) {
       console.log(tempContainerId, selectTempIndex, layerDomName, index, param, "sssssssssssssssssssssssssssss")
-      // return;
+      return;
       if (this.tempParamsObj[tempContainerId][selectTempIndex] == undefined) {
         this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = {}
       }
@@ -392,7 +382,6 @@ export default {
       // // let newParamsObj=this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName]
       // let newParamsObj1 = { ...this.tempParamsObj[tempContainerId][selectTempIndex] }
       // this.tempParamsObj[tempContainerId][selectTempIndex] = {}
-      // console.log(param.value, newParamsObj1, "kkkkkkkkkkkkkkkkkkkkkkkkkkk")
       // this.$nextTick(() => {
       //   this.tempParamsObj[tempContainerId][selectTempIndex] = newParamsObj1
       // })
@@ -439,25 +428,50 @@ export default {
       oDiv.style.top = y + 'px';
       this.positionX = x;
       this.positionY = y;
-      this.getOverContainerIdFn(x, y, oDiv)
+      this.getOverContainerIdFn(x, oDiv)
     },
-    getOverContainerIdFn(x, y, oDiv) {
-      let tempContainer = document.querySelector(".show_container")
-      let domContainerArr = document.querySelectorAll(".dom_container")
-      let tempX = tempContainer.getBoundingClientRect().left
-      let tempItemsArr = Object.keys(this.tempItemsObj)
-      if (oDiv.clientWidth + x > tempX && tempItemsArr.length > 0) {
-        let tempTop = 0
+    getOverContainerIdFn(x, oDiv) {
+      clearTimeout(this.timer1)
+      this.timer1 = setTimeout(() => {
+        let tempContainer = document.querySelector(".show_container")
+        let domContainerArr = document.querySelectorAll(".dom_container")
+        let tempX = tempContainer.getBoundingClientRect().left
+        let tempY = document.querySelector(".dom_container_box").getBoundingClientRect().height
+        let temp1Dom = document.querySelector(".domc_temp")
+        let tempY1 = 0
+        if (!!temp1Dom) {
+          tempY1 = temp1Dom.getBoundingClientRect().height
+        } else {
+          clearTimeout(this.timer2)
+          this.timer2 = setTimeout(() => {
+            this.createContainerFn()
+          }, 100)
+        }
+        let tempItemsArr = Object.keys(this.tempItemsObj)
+        // if (oDiv.clientWidth + x > tempX && tempItemsArr.length > 0) {
         let yy = oDiv.$clientY
-        tempItemsArr.map((v, i) => {
-          if (domContainerArr[0].clientHeight - yy > 0) {
-            this.tempFoucsContainerId = 1
-          } else if (yy - tempTop > 0 && (tempTop + domContainerArr[i].clientHeight) - yy > 0) {
-            this.tempFoucsContainerId = v
-          }
-          tempTop = tempTop + domContainerArr[i].clientHeight
-        })
-      }
+        if (oDiv.clientWidth + x > tempX && yy > tempY - tempY1 + 10) {
+          // if (this.isDraging == false) {
+          //   this.createContainerFn()
+          //   this.isDraging = true
+          // }
+          let tempTop = 0
+          if (tempItemsArr.length == 0) return;
+          tempItemsArr.map((v, i) => {
+            if (domContainerArr[0].clientHeight - yy > 0) {
+              this.tempFoucsContainerId = 1
+            } else if (yy - tempTop > 0 && (tempTop + domContainerArr[i].clientHeight) - yy > 0) {
+              this.tempFoucsContainerId = v
+            }
+            tempTop = tempTop + domContainerArr[i].clientHeight
+          })
+        } else {
+          clearTimeout(this.timer2)
+          this.timer2 = setTimeout(() => {
+            this.deleteTempContainerFn()
+          }, 100)
+        }
+      }, 20)
     },
     //选择模板样式
     selectTempStyleFn(containerId, tempIndex, index) {
@@ -472,7 +486,6 @@ export default {
         }
       })
       this.tempComponents[containerId][tempIndex] = tempIndexArr
-      console.log(this.paramsCompArr, "sssssssssssss")
       // this.tempComponents[containerId][tempIndex].map((v, i) => {
       //   v.isUseStyle = false
       //   if (i == index) {
@@ -492,7 +505,7 @@ export default {
         data: {
           17301: {
             home: {
-              "levelStruct": this.tempComponentObj,
+              "levelStruct": this.tempContainerObj,
               "styleParamsDara": this.tempParamsObj
             }
           }
