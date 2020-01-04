@@ -200,7 +200,6 @@ export default {
         delete this.outTempParamsObj[containerId]
         this.domContainerId = this.domContainerId - 1
       }
-      console.log(this.tempComponents, "kkkkkkkkkkkkkkkkkkkkkkk")
       this.tempItemsObj = { ...this.tempItemsObj }
       this.tempParamsObj = { ...this.tempParamsObj }
       this.tempComponents = { ...this.tempComponents }
@@ -214,7 +213,6 @@ export default {
         this.timer = null
       }
       this.timer = setTimeout(() => {
-        console.log(containerId, tempIndex, 'isShowDeleteFn--->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         if (containerId == null) {
           this.isShowDelete = null
           return
@@ -256,7 +254,6 @@ export default {
         if (oDiv.clientWidth + left > tempX) {
           if (!!cla) {
             if (this.hadRepeateFn(cla.split("_")[0])) {
-              console.log("sdddddddddddddddddddddddd")
               setTimeout(() => {
                 this.createTempFn(cla.split("_")[0])
               }, 300)
@@ -275,7 +272,6 @@ export default {
       };
     },
     deleteTempContainerFn() {
-      console.log(this.tempItemsObj, "sssssssssdddddddddddddddddddddddd")
       let temp1Dom = document.querySelector(".domc_temp")
       if (!!temp1Dom) {
         let tempObjLenth = Object.keys(this.tempItemsObj).length
@@ -315,7 +311,6 @@ export default {
         this.tempContainerId = this.domContainerId
       }
       this.tempFoucsContainerId = null
-      console.log(this.tempItemsObj, this.tempContainerId, ":ssssssssssssssss")
       this.tempItemsObj[this.tempContainerId].push(tempNameObj)
       this.tempItemsObj = { ...this.tempItemsObj }
       let tempH = 0
@@ -323,7 +318,6 @@ export default {
       let outTempParamsObj = {}
       let tempComponents = {}
       setTimeout(async () => {
-        console.log(this.tempItemsObj[this.domContainerId], this.tempItemsObj, this.domContainerId, "mmmmmmmmmmmmmmmmmmmmmm")
         if (!this.tempItemsObj[this.domContainerId]) return;
         this.tempItemsObj[this.tempContainerId].map((v, i) => {
           if (!!this.$refs[Object.keys(v)] && !!this.$refs[Object.keys(v)][0] && !!this.$refs[Object.keys(v)][0].$el) {
@@ -451,10 +445,6 @@ export default {
         // if (oDiv.clientWidth + x > tempX && tempItemsArr.length > 0) {
         let yy = oDiv.$clientY
         if (oDiv.clientWidth + x > tempX && yy > tempY - tempY1 + 10) {
-          // if (this.isDraging == false) {
-          //   this.createContainerFn()
-          //   this.isDraging = true
-          // }
           let tempTop = 0
           if (tempItemsArr.length == 0) return;
           tempItemsArr.map((v, i) => {
@@ -466,6 +456,7 @@ export default {
             tempTop = tempTop + domContainerArr[i].clientHeight
           })
         } else {
+          this.tempFoucsContainerId = null
           clearTimeout(this.timer2)
           this.timer2 = setTimeout(() => {
             this.deleteTempContainerFn()
