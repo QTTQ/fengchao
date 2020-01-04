@@ -67,7 +67,6 @@ export default {
         }
       ),
       type: Object
-
     },
     outTempParams: {
       default: () => (
@@ -81,21 +80,28 @@ export default {
               {
                 name: "宽度",
                 layerEle: "width",
-                layer: "className",//作用在class上
+                layerTemp: "slider",//滑轮
+                layer: "className",//作用在class上判别
                 value: "0",
-                needPx: true
+                needPx: true,
+                maxValue: 40,
+                minValue: 10,
               },
               {
                 name: "高度",
                 layerEle: "height",
-                layer: "className",//作用在class上
+                layerTemp: "slider",//滑轮
+                layer: "className",//作用在class上判别
                 value: "0",
-                needPx: true
+                needPx: true,
+                maxValue: 10,
+                minValue: 0,
               },
               {
                 name: "input值",
                 layerEle: "input",
-                layer: "valueName",//作用在value上
+                layerTemp: "slider",//滑轮
+                layer: "valueName",//作用在value上判别
                 value: "0"
               },
             ]
@@ -109,14 +115,12 @@ export default {
               {
                 name: "背景颜色",
                 layerEle: "background",
+                layerTemp: "colorPicker",//滑轮
                 layer: "className",//作用在class上
                 value: "#ccc",
                 needPx: false
               },]
           },
-          {},
-          {},
-          {}
         ]
       ),
       type: Array

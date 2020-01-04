@@ -74,9 +74,6 @@
         </div>-->
       </div>
       <div class="params_container">
-        <!-- <component :is="item" v-for="(item,index) in paramsCompArr" :data="dataParams"
-                @changeTempParamsFn_="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
-        :key="index"></component>-->
         <!-- 模板选择 -->
         <div
           v-if="!!tempComponents&&!!tempComponents[tempContainerId]&&!!tempComponents[tempContainerId][selectTempIndex]"
@@ -94,13 +91,21 @@
             v-for="(item,index) in outTempParamsObj[tempContainerId][selectTempIndex]"
             :key="index"
           >
-            <inputTemp
+            <!-- <colorPickerTemp
               v-for="(item1,index1) in item.type"
               :key="index1"
-              @changeTempParamsFn_="changeTempParamsFn(tempContainerId,selectTempIndex,item.layerDomName,index,item1)"
-            ></inputTemp>
+              :paramsData="item1"
+              @changeTempParamsFn_="changeTempParamsFn($event,tempContainerId,selectTempIndex,item.layerDomName,index)"
+            ></colorPickerTemp>-->
+            {{item.name}}
+            <component
+              :is="item1"
+              v-for="(item1,index1) in paramsCompArr[index]"
+              :key="index1"
+              :paramsData="outTempParamsObj[tempContainerId][selectTempIndex][index].type[index1]"
+              @changeTempParamsFn_="changeTempParamsFn($event,tempContainerId,selectTempIndex,item.layerDomName,index)"
+            ></component>
           </div>
-
           <!-- <div
             v-for="(item,index) in outTempParamsObj[tempContainerId][selectTempIndex]"
             :key="index"
@@ -136,11 +141,15 @@
 
 <script>
 import axios from "axios"
-import inputTemp from "../components/paramsComponents/input"
+import sliderTemp from "../components/paramsComponents/slider"
+import colorPickerTemp from "../components/paramsComponents/colorPicker"
+
+
 export default {
   name: "edit",
   components: {
-    inputTemp
+    sliderTemp,
+    colorPickerTemp
   },
   data() {
     return {
@@ -168,7 +177,7 @@ export default {
       timer: null,
       timer1: null,
       timer2: null,
-      paramsCompArr: []
+      paramsCompArr: {}
     }
   },
   computed: {
@@ -339,6 +348,7 @@ export default {
         this.outTempParamsObj = { ...this.outTempParamsObj }
         this.tempContainerHObj[this.tempContainerId] = tempH
         this.tempContainerHObj = { ...this.tempContainerHObj }
+        this.paramsCompArr = {}
         this.initComponentsFn(await this.handleAppendFn(outTempParamsObj[this.selectTempIndex], "paramsComponents"))
       }, 400)
       // })
@@ -350,9 +360,8 @@ export default {
     componentFocusFn1() {
       console.log("ssssssssssss-----点击组件---透过父容器了！！！！！！！！！！！")
     },
-    changeTempParamsFn(tempContainerId, selectTempIndex, layerDomName, index, param) {
-      console.log(tempContainerId, selectTempIndex, layerDomName, index, param, "sssssssssssssssssssssssssssss")
-      return;
+    changeTempParamsFn(param, tempContainerId, selectTempIndex, layerDomName, index, param1) {
+      console.log(param, tempContainerId, selectTempIndex, layerDomName, index, "sssssssssssssssssssssssssssss")
       if (this.tempParamsObj[tempContainerId][selectTempIndex] == undefined) {
         this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = {}
       }
