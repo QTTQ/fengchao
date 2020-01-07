@@ -2,33 +2,71 @@
   <section>
     <div class="drag_box">
       <div class="select_temp_box">
-        <div class="select_temp_box1">
-          <div
-            class="select_temp search"
-            v-for="(item,index) in selectTempNum"
-            :key="index"
-            @mousedown.stop="move($event,'select_temp search','search_box')"
-          >搜索框</div>
-        </div>
-        <div class="select_temp_box1">
-          <div
-            class="select_temp customer"
-            v-for="(item,index) in selectTempNum"
-            :key="index"
-            @mousedown.stop="move($event,'select_temp customer','customer_box')"
-          >按钮</div>
-        </div>
+        <el-collapse accordion v-model="activeNames" @change="handleChange">
+          <el-collapse-item title="基础组件" name="1">
+            <div v-show="ishowTempBox1" class="selectt_box">
+              <div class="select_temp_box1">
+                <div
+                  class="select_temp search"
+                  v-for="(item,index) in selectTempNum"
+                  :key="index"
+                  @mousedown.stop="move($event,'select_temp search','search_box')"
+                >搜索框</div>
+              </div>
+              <div class="select_temp_box1">
+                <div
+                  class="select_temp customer"
+                  v-for="(item,index) in selectTempNum"
+                  :key="index"
+                  @mousedown.stop="move($event,'select_temp customer','customer_box')"
+                >按钮</div>
+              </div>
 
-        <div class="select_temp_box1">
-          <div
-            class="select_temp button"
-            v-for="(item,index) in selectTempNum"
-            :key="index"
-            @mousedown.stop="move($event,'select_temp button','button_box')"
-          >客服</div>
-        </div>
+              <div class="select_temp_box1">
+                <div
+                  class="select_temp button"
+                  v-for="(item,index) in selectTempNum"
+                  :key="index"
+                  @mousedown.stop="move($event,'select_temp button','button_box')"
+                >客服</div>
+              </div>
+            </div>
+          </el-collapse-item>
+          <el-collapse-item title="营销组件" name="2">
+            <div v-show="ishowTempBox1" class="selectt_box">
+              <div class="select_temp_box1">
+                <div
+                  class="select_temp search"
+                  v-for="(item,index) in selectTempNum"
+                  :key="index"
+                  @mousedown.stop="move($event,'select_temp search','search_box')"
+                >搜索框</div>
+              </div>
+              <div class="select_temp_box1">
+                <div
+                  class="select_temp customer"
+                  v-for="(item,index) in selectTempNum"
+                  :key="index"
+                  @mousedown.stop="move($event,'select_temp customer','customer_box')"
+                >按钮</div>
+              </div>
+
+              <div class="select_temp_box1">
+                <div
+                  class="select_temp button"
+                  v-for="(item,index) in selectTempNum"
+                  :key="index"
+                  @mousedown.stop="move($event,'select_temp button','button_box')"
+                >客服</div>
+              </div>
+            </div>
+          </el-collapse-item>
+        </el-collapse>
       </div>
       <div class="show_container">
+        <div class="show_header_icon">
+          <div class="show_hi_title">店铺主页</div>
+        </div>
         <div class="dom_container_box">
           <div
             class="dom_container"
@@ -153,6 +191,21 @@ export default {
   },
   data() {
     return {
+      activeNames: ['1'],
+      selectTempBoxIndex: 1,
+      selectTempBox1: [{
+        label: '一级 1',
+        children: [{
+          label: '一级 1',
+
+        }]
+      }],
+      ishowTempBox1: true,
+      selectTempBox2: [{
+        label: '一级 1',
+        children: [{}]
+      }],
+      ishowTempBox2: true,
       positionX: 0,
       positionY: 0,
       isHide: "",
@@ -189,6 +242,9 @@ export default {
     },
   },
   methods: {
+    handleChange(val) {
+      console.log(val);
+    },
     deleteTempFn(containerId, tempIndex) {
       //tempItemsObj 组件函数
       this.tempItemsObj[containerId].splice(tempIndex, 1)
@@ -361,7 +417,6 @@ export default {
       console.log("ssssssssssss-----点击组件---透过父容器了！！！！！！！！！！！")
     },
     changeTempParamsFn(param, tempContainerId, selectTempIndex, layerDomName, index, param1) {
-      console.log(param, tempContainerId, selectTempIndex, layerDomName, index, "sssssssssssssssssssssssssssss")
       if (this.tempParamsObj[tempContainerId][selectTempIndex] == undefined) {
         this.tempParamsObj[tempContainerId][selectTempIndex][layerDomName] = {}
       }
@@ -690,6 +745,10 @@ export default {
 .fade_delete-enter, .fade_delete-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }
+.body {
+  overflow: hidden;
+  height: 100%;
+}
 .container {
   position: relative;
   display: grid;
@@ -718,47 +777,90 @@ export default {
 .drag_box {
   display: flex;
   justify-content: space-around;
+  background: #f7f8fa;
 }
 
 .show_container {
-  width: 400px;
+  width: 380px;
   height: 800px;
   display: inline-block;
-  border: 2px solid red;
+  .show_header_icon {
+    background-image: url(https://img.yzcdn.cn/public_files/2019/02/11/14417a76b49dac2851efaf744f87cdb4.png);
+    height: 64px;
+    width: 375px;
+    margin: 0 auto;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50%;
+    box-shadow: 0 0 14px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .show_hi_title {
+      margin-top: 18px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
-.select_container_box {
-  min-height: 100px;
-  background: #cccccc;
-  border: 1px solid red;
-  display: flex;
-  justify-content: space-around;
-}
-.domc_temp {
-  min-height: 100px;
-  background: #cccccc;
-  border: 1px solid red;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-.add_container,
-.confirm_container {
-  min-height: 100px;
-  background: #cccccc;
-  border: 1px solid red;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+// .select_container_box {
+//   min-height: 100px;
+//   background: #cccccc;
+//   border: 1px solid red;
+//   display: flex;
+//   justify-content: space-around;
+// }
 
+// .add_container,
+// .confirm_container {
+//   min-height: 100px;
+//   background: #cccccc;
+//   border: 1px solid red;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   width: 100%;
+// }
+//谷歌适用
+::-webkit-scrollbar {
+  display: none;
+}
 .select_temp_box {
-  width: 400px;
+  width: 240px;
   height: 800px;
   display: inline-block;
-  border: 2px solid red;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  bottom: 0;
+  background: #fff;
+  vertical-align: baseline;
+  padding: 10px 10px;
+  .el-collapse {
+    border-top: none;
+  }
+  .arrow_icon {
+    margin-left: 10px;
+    float: left;
+    width: 0;
+    height: 0;
+    border-width: 8px;
+    border-style: solid;
+    transition: transform 0.3s;
+  }
+  .icon_right {
+    border-color: transparent transparent transparent #969799;
+  }
+  .icon_left {
+    margin-top: 6px;
+    border-color: #969799 transparent transparent transparent;
+  }
+  .selectt_icon {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .select_temp {
@@ -827,6 +929,14 @@ export default {
         display: flex;
         justify-content: center;
       }
+      .domc_temp {
+        min-height: 100px;
+        background: #cccccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+      }
     }
   }
 }
@@ -835,6 +945,12 @@ export default {
 .params_container {
   border: 1px solid red;
   width: 300px;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #fff;
+  vertical-align: baseline;
+  padding: 10px 20px;
 }
 
 .is_hide {
