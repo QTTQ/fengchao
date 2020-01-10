@@ -10,14 +10,13 @@ Vue.mixin({
   },
   methods: {
     async initComponentsFn(tempItems) {
-      // tempItems.map(v => {
-      //   try {
-      //     this.paramsCompArr.push(() => v());
-      //   } catch (error) {
-      //     this.paramsCompArr.push(() => import('@/components/templateComponents/default'));
-      //   }
-      // })
-      this.paramsCompArr = tempItems;
+      tempItems.map(v => {
+        try {
+          this.paramsCompArr.push(() => v());
+        } catch (error) {
+          this.paramsCompArr.push(() => import('@/components/templateComponents/default'));
+        }
+      })
     },
     async handleAppendFn(tempClasNames, compFile = "templateComponents") { //动态插入需要显示的组件
       let tempItems = {}
